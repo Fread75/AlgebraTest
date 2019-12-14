@@ -13,6 +13,7 @@ using DenseMatrix = MathNet.Numerics.LinearAlgebra.Double.DenseMatrix;
 namespace Common
 {
     [DisassemblyDiagnoser(printIL:true, recursiveDepth: 5)]
+    //[SimpleJob(RunStrategy.Monitoring, launchCount: 10, warmupCount: 0, targetCount: 100)]
     [SimpleJob(launchCount: 1, warmupCount: 1, targetCount: 1)]
     //[DryJob]
     public class BenchmarkMatrixMultiplication
@@ -81,6 +82,8 @@ namespace Common
 
         [Benchmark(Baseline = true), System.STAThread]
         public void NaiveProduct() => matrixA.ProductWithTransposed(matrixB, matrixRes);
+        [Benchmark, System.STAThread]
+        public void NaiveProduct_MultiThreading() => matrixA.ProductWithTransposed_MultiThreading(matrixB, matrixRes);
 
         [Benchmark, System.STAThread]
         public void MathNetNumericsManagedProduct() => mnMatrixA.TransposeAndMultiply(mnMatrixB, mnMatrixRes);
@@ -94,13 +97,13 @@ namespace Common
         public void MathNetNumericsManagedReferenceProduct_MultiThreading() => mnMatrixA.TransposeAndMultiply(mnMatrixB, mnMatrixRes);
         [Benchmark, System.STAThread]
         public void MathNetNumericsMklProduct_MultiThreading() => mnMatrixA.TransposeAndMultiply(mnMatrixB, mnMatrixRes);
-        [Benchmark]
-        public void ProductWithTransposed_Simd() => matrixA.ProductWithTransposed_Simd(matrixB, matrixRes);
-        [Benchmark]
-        public void MathNetNumerics_Simd() => mnMatrixA.TransposeAndMultiply(mnMatrixB, mnMatrixRes);
-        [Benchmark]
-        public void ProductWithTransposed_Span472() => matrixA.ProductWithTransposed_Span472(matrixB, matrixRes);
-        [Benchmark]
-        public void ProductWithTransposed_Unsafe() => matrixA.ProductWithTransposed_Unsafe(matrixB, matrixRes);
+        //[Benchmark]
+        //public void ProductWithTransposed_Simd() => matrixA.ProductWithTransposed_Simd(matrixB, matrixRes);
+        //[Benchmark]
+        //public void MathNetNumerics_Simd() => mnMatrixA.TransposeAndMultiply(mnMatrixB, mnMatrixRes);
+        //[Benchmark]
+        //public void ProductWithTransposed_Span472() => matrixA.ProductWithTransposed_Span472(matrixB, matrixRes);
+        //[Benchmark]
+        //public void ProductWithTransposed_Unsafe() => matrixA.ProductWithTransposed_Unsafe(matrixB, matrixRes);
     }
 }

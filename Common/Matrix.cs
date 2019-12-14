@@ -51,6 +51,22 @@ namespace Common
             }
         }
 
+        public void ProductWithTransposed_MultiThreading(Matrix B, Matrix res)
+        {
+            Parallel.For(0, size, i =>
+            {
+                var offset = i * size;
+                var spanRowA = new SafeSpan<NumType>(array, offset, size);
+                var spanRowRes = new SafeSpan<NumType>(res.array, offset, size);
+
+                for (int j = 0; j < size; j++)
+                {
+                    var spanRowB = new SafeSpan<NumType>(B.array, j * size, size);
+                    spanRowRes[j] = SumProduct(spanRowA, spanRowB);
+                }
+            });
+        }
+
         public void ProductWithTransposed_Simd(Matrix B, Matrix res)
         {
             for (int i = 0; i < size; i++)

@@ -27,7 +27,9 @@ namespace ConsoleApp1
                 Console.WriteLine("sizeof(Matrix4x4) : " + sizeof(Matrix4x4));
             };
 
-            var summary = BenchmarkRunner.Run<BenchmarkMatrixMultiplication>();
+            //var summary = BenchmarkRunner.Run<BenchmarkMatrixMultiplication>();
+
+            var summary = BenchmarkRunner.Run<TestInlining>();
         }
     }
 }

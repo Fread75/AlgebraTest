@@ -14,4 +14,14 @@
     <PackageReference Include="System.Memory" Version="4.5.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TestAssembly\TestAssembly.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="TestCompiledAssembly">
+      <HintPath>..\references\x64\TestCompiledAssembly.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

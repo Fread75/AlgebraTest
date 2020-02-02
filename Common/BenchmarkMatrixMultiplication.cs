@@ -14,8 +14,8 @@ namespace Common
 {
     [DisassemblyDiagnoser(printIL:true, recursiveDepth: 5)]
     //[SimpleJob(RunStrategy.Monitoring, launchCount: 10, warmupCount: 0, targetCount: 100)]
-    [SimpleJob(launchCount: 1, warmupCount: 1, targetCount: 1)]
-    //[DryJob]
+    //[SimpleJob(launchCount: 1, warmupCount: 1, targetCount: 1)]
+    [DryJob]
     public class BenchmarkMatrixMultiplication
     {
         private const int MATRIX_SIZE = 400;
@@ -105,5 +105,20 @@ namespace Common
         //public void ProductWithTransposed_Span472() => matrixA.ProductWithTransposed_Span472(matrixB, matrixRes);
         //[Benchmark]
         //public void ProductWithTransposed_Unsafe() => matrixA.ProductWithTransposed_Unsafe(matrixB, matrixRes);
+
+        [Benchmark, System.STAThread]
+        public double MatrixAccess()
+        {
+            double sum = 0;
+            for (int i = 0; i < matrixA.Size; i++)
+            {
+                for (int j = 0; j < matrixA.Size; j++)
+                {
+                    sum += matrixA[i, j];
+                }
+            }
+
+            return sum;
+        }
     }
 }

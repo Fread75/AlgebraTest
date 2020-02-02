@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -10,10 +12,62 @@ using NumType = System.Double;
 
 namespace Common
 {
-    public class Matrix
+    internal static class Algebra
+    {
+        internal static void Multiply<TMatrix>(TMatrix a, TMatrix b, TMatrix result) where TMatrix : IMatrix
+        {
+            for (int i = 0; i < a.Size; i++)
+            {
+                for (int j = 0; j < a.Size; j++)
+                {
+                    double temp = 0;
+                    for (int k = 0; k < a.Size; k++)
+                    {
+                        temp += a[i, k] * b[k, j];
+                    }
+                    result[i, j] = temp;
+                }
+            }
+        }
+        internal static void Multiply(Matrix a, Matrix b, Matrix result)
+        {
+            for (int i = 0; i < a.Size; i++)
+            {
+                for (int j = 0; j < a.Size; j++)
+                {
+                    double temp = 0;
+                    for (int k = 0; k < a.Size; k++)
+                    {
+                        temp += a[i, k] * b[k, j];
+                    }
+                    result[i, j] = temp;
+                }
+            }
+        }
+    }
+
+
+    internal interface IMatrix
+    {
+        NumType this[int i, int j] { get; set; }
+        int Size { get; }
+    }
+
+
+    public sealed class Matrix : IMatrix
     {
         public readonly NumType[] array;
         private readonly int size;
+
+        public int Size => size;
+
+        public NumType this [int i, int j]
+        {
+            //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => array[i * size + j];
+            //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => array[i * size + j] = value;
+        }
 
         public Matrix(int size) : this (new NumType[size * size], size) { }
 
@@ -53,18 +107,18 @@ namespace Common
 
         public void ProductWithTransposed_MultiThreading(Matrix B, Matrix res)
         {
-            Parallel.For(0, size, i =>
-            {
-                var offset = i * size;
-                var spanRowA = new SafeSpan<NumType>(array, offset, size);
-                var spanRowRes = new SafeSpan<NumType>(res.array, offset, size);
+            //Parallel.For(0, size, i =>
+            //{
+            //    var offset = i * size;
+            //    var spanRowA = new SafeSpan<NumType>(array, offset, size);
+            //    var spanRowRes = new SafeSpan<NumType>(res.array, offset, size);
 
-                for (int j = 0; j < size; j++)
-                {
-                    var spanRowB = new SafeSpan<NumType>(B.array, j * size, size);
-                    spanRowRes[j] = SumProduct(spanRowA, spanRowB);
-                }
-            });
+            //    for (int j = 0; j < size; j++)
+            //    {
+            //        var spanRowB = new SafeSpan<NumType>(B.array, j * size, size);
+            //        spanRowRes[j] = SumProduct(spanRowA, spanRowB);
+            //    }
+            //});
         }
 
         public void ProductWithTransposed_Simd(Matrix B, Matrix res)
@@ -168,7 +222,7 @@ namespace Common
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe static NumType SumProduct(NumType* ptrA, NumType* ptrB, int size)
+        private static unsafe NumType SumProduct(NumType* ptrA, NumType* ptrB, int size)
         {
             NumType res = 0;
             for (int i = 0; i < size; i++)
@@ -177,5 +231,30 @@ namespace Common
             }
             return res;
         }
+
+        private void Write(string file)
+        {
+            using (var writer = File.OpenWrite(file))
+            {
+                writer.Write(null, 0, 0);
+                writer.Flush();
+            }
+        }
+        public void Multiply(Matrix other, Matrix res)
+        {
+            for (int i = 0; i < res.Size; i++)
+            {
+                for (int j = 0; j < res.Size; j++)
+                {
+                    double value = 0;
+                    for (int k = 0; k < res.Size; k++)
+                    {
+                        value += this[i, j] * other[j, i];
+                    }
+                    res[i, j] = value;
+                }
+            }
+        }
+
     }
 }
